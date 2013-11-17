@@ -161,11 +161,15 @@ def _nodes_query(raw_client_input=None):
 
     # If we recieved any displable requests from the client input
     # Then format the nice output for them.
-    displayformat = None
+    displayformat = ''
     if client_input.displable:
-        displayformat = "hostname=%(hostname)s "
+
+        # Add the hostname to the output if we dont already have it.
+        if 'hostname' not in client_input.displable:
+            displayformat = "%(hostname)s "
+
         for display_item in client_input.displable:
-            displayformat += '%s=%%(%s)s ' % (display_item, display_item)
+            displayformat += '%%(%s)s ' % display_item
 
     results = namedtuple("NodeQuery", "query display displayformat")
     return results(query, display, displayformat)
@@ -176,8 +180,8 @@ def nodes_query(db, raw_client_input=None):
 
     """
 
+    # Process the raw input
     client_input = _nodes_query(raw_client_input)
-    print client_input
 
     # Query puppetdb
     nodes = db.nodes(query=client_input.query)
@@ -190,5 +194,21 @@ def nodes_query(db, raw_client_input=None):
             continue
         print node
 
+def fact_names(db):
+    fact_list = db.fact_names()
+    for fact_name in fact_list:
+        print fact_name
+
+def fact_query(db, raw_client_input=None):
+    """
+    Allow for simple query of facts.
+
+    """
+    if not raw_client_input:
+        return fact_names
+
+    return nodes_query(db, raw_client_input=raw_client_input)
+    
+    
 
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import pypuppetdb
-from api.query import nodes_query
+from api.query import nodes_query, fact_query
 
 PUPPETDB_HOST='localhost'
 PUPPETDB_PORT=49287
@@ -21,7 +21,12 @@ def argparser():
 def main():
     args = argparser()
     db = pypuppetdb.connect(host=PUPPETDB_HOST, port=PUPPETDB_PORT)
-    nodes_query(db, args.query)
+
+    if args.section == 'nodes':
+        nodes_query(db, args.query)
+
+    if args.section == 'facts':
+        fact_query(db, args.query)
 
 if __name__ == '__main__':
     main()
