@@ -5,7 +5,7 @@ import pypuppetdb
 from api.query import nodes_query, fact_query
 
 PUPPETDB_HOST='localhost'
-PUPPETDB_PORT=49287
+PUPPETDB_PORT=49205
 
 
 def argparser():

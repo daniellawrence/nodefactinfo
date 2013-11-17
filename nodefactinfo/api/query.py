@@ -8,7 +8,7 @@ import sys
 from collections import namedtuple
 
 PUPPETDB_HOST='localhost'
-PUPPETDB_PORT=49287
+PUPPETDB_PORT=49205
 
 OPERATORS = [
     '=',
@@ -190,7 +190,10 @@ def nodes_query(db, raw_client_input=None):
     for node in nodes:
         if client_input.displayformat:
             node_facts = facts2dict(node.facts())
-            print client_input.displayformat % node_facts
+            try:
+                print client_input.displayformat % node_facts
+            except KeyError as keyerror:
+                print "node '%s' is missing fact %s" % (node, keyerror)
             continue
         print node
 
@@ -204,10 +207,11 @@ def fact_query(db, raw_client_input=None):
     Allow for simple query of facts.
 
     """
-    if not raw_client_input:
-        return fact_names
-
-    return nodes_query(db, raw_client_input=raw_client_input)
+    
+    if raw_client_input:
+        return nodes_query(db, raw_client_input=raw_client_input)
+    else:
+        return fact_names(db)
     
     
 
