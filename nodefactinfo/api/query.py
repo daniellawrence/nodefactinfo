@@ -99,8 +99,8 @@ def simple2AST(queries):
 
     if not fact:
         raise Exception("simple2AST failed to find fact: '%s'" % queries)
-    elif not value:
-        ASTquery='["=", "name", "%s"]' % fact
+    if not value:
+        raise Exception("simple2AST failed to find value: '%s'" % queries)
     else:
         ASTquery = '["%s", ["fact", "%s"], "%s" ]' % (operator, fact, value)
 
@@ -167,6 +167,7 @@ def _nodes_query(raw_client_input=None):
     # If we recieved any displable requests from the client input
     # Then format the nice output for them.
     displayformat = ''
+
     if client_input.displable:
 
         # Add the hostname to the output if we dont already have it.
