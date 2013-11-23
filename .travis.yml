@@ -12,5 +12,6 @@ install: pip install -r requirements.txt -r requirements-dev.txt --use-mirrors
 
 # command to run tests, e.g. python setup.py test
 script:
-  - python setup.py test
+  - coverage run --source=nodefactinfo ./setup.py test
   - flake8 nodefactinfo
+  - coverage report

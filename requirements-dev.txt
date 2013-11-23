@@ -1,3 +1,4 @@
 pypuppetdb
 tox
 flake8
+coverage
