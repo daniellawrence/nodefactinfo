@@ -17,8 +17,17 @@ OPERATORS = [
     '<'
 ]
 
-# 
-RE_OPERATOR=r'(?P<fact>.+)(\s+|)(?P<operator>[%s])(\s+|)(?P<value>.+)' % "".join(OPERATORS)
+#
+RE_OPERATOR=r'(?P<fact>.+)(\s+|)(?P<operator>[%s])(\s+|)(?P<value>.*)' % "".join(OPERATORS)
+
+def unique_factvalues(raw_facts):
+    """
+    Return a list of unique fact values
+    """
+    factvalues = set([])
+    for fact in raw_facts:
+        factvalues.add(fact.value)
+    return factvalues
 
 def facts2dict(raw_facts):
     """
@@ -79,26 +88,22 @@ def simple2AST(queries):
     if not re_match:
         raise Exception("simple2AST failed to split query: '%s'" % RE_OPERATOR)
 
-    #fact = re_match.groupdict()['fact']
-    #if fact not in query_factnames:
-    #    query_factnames.add(fact)
-    #    if 'OR' not in queries:
-    #        queries.append("OR")
-
+    # Pull apart the query...
     fact = re_match.groupdict()['fact']
     operator = re_match.groupdict()['operator']
     value = re_match.groupdict()['value']
 
+    # Strip the strings
     fact = fact.strip()
     value = value.strip()
 
     if not fact:
         raise Exception("simple2AST failed to find fact: '%s'" % queries)
+    elif not value:
+        ASTquery='["=", "name", "%s"]' % fact
+    else:
+        ASTquery = '["%s", ["fact", "%s"], "%s" ]' % (operator, fact, value)
 
-    if not value:
-        raise Exception("simple2AST failed to find value: '%s'" % queries)
-
-    ASTquery = '["%s", ["fact", "%s"], "%s" ]' % (operator, fact, value)
     return ASTquery
 
 
@@ -168,11 +173,14 @@ def _nodes_query(raw_client_input=None):
         if 'hostname' not in client_input.displable:
             displayformat = "%(hostname)s "
 
+        # Add all the displable input fields to the displayformat
         for display_item in client_input.displable:
             displayformat += '%%(%s)s ' % display_item
 
     results = namedtuple("NodeQuery", "query display displayformat")
-    return results(query, display, displayformat)
+    formatted_clientinput = results(query, display, displayformat)
+    print formatted_clientinput
+    return formatted_clientinput
 
 def nodes_query(db, raw_client_input=None):
     """ 
@@ -182,22 +190,43 @@ def nodes_query(db, raw_client_input=None):
 
     # Process the raw input
     client_input = _nodes_query(raw_client_input)
+    print "client_input:", client_input
 
     # Query puppetdb
     nodes = db.nodes(query=client_input.query)
+
+    print client_input.display
+    print client_input.displayformat
 
     # Loop over the nodes, with the display_format
     for node in nodes:
         if client_input.displayformat:
             node_facts = facts2dict(node.facts())
             try:
+                for d in client_input.display:
+                    print d
                 print client_input.displayformat % node_facts
             except KeyError as keyerror:
                 print "node '%s' is missing fact %s" % (node, keyerror)
             continue
         print node
 
+def _fact_query(db, raw_client_input=None):
+    client_input = display_query_spliter(raw_client_input)
+    facts = db.facts(query=client_input.queries)
+    print facts
+    for f in unique_factvalues(facts):
+        print f
+
+def fact_values(db, raw_client_input=None):
+    """
+    Providing a fact with an operator, gather all the matching values.
+
+    This is mostly for autocomplete, however might be able to do some reports with it.
+    """
+
 def fact_names(db):
+
     fact_list = db.fact_names()
     for fact_name in fact_list:
         print fact_name
@@ -209,7 +238,7 @@ def fact_query(db, raw_client_input=None):
     """
     
     if raw_client_input:
-        return nodes_query(db, raw_client_input=raw_client_input)
+        return nodes_query(db, raw_client_input)
     else:
         return fact_names(db)
     
