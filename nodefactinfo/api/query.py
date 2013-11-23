@@ -117,7 +117,7 @@ def display_query_spliter(all_queries):
     Response = namedtuple('SplitInput', 'displable queries')
 
     # split up strings into a list of queries
-    if isinstance(all_queries, str) or isinstance(all_queries, unicode):
+    if isinstance(all_queries, str):
         all_queries = all_queries.split()
 
     if all_queries:
@@ -180,7 +180,6 @@ def _nodes_query(raw_client_input=None):
 
     results = namedtuple("NodeQuery", "query display displayformat")
     formatted_clientinput = results(query, display, displayformat)
-    print formatted_clientinput
     return formatted_clientinput
 
 def nodes_query(db, raw_client_input=None):
@@ -191,13 +190,9 @@ def nodes_query(db, raw_client_input=None):
 
     # Process the raw input
     client_input = _nodes_query(raw_client_input)
-    print "client_input:", client_input
 
     # Query puppetdb
     nodes = db.nodes(query=client_input.query)
-
-    print client_input.display
-    print client_input.displayformat
 
     # Loop over the nodes, with the display_format
     for node in nodes:
@@ -205,19 +200,18 @@ def nodes_query(db, raw_client_input=None):
             node_facts = facts2dict(node.facts())
             try:
                 for d in client_input.display:
-                    print d
-                print client_input.displayformat % node_facts
+                    print("%s" % d)
+                print(client_input.displayformat % node_facts)
             except KeyError as keyerror:
-                print "node '%s' is missing fact %s" % (node, keyerror)
+                print("node '%s' is missing fact %s" % (node, keyerror))
             continue
-        print node
+        print("%s" % node)
 
 def _fact_query(db, raw_client_input=None):
     client_input = display_query_spliter(raw_client_input)
     facts = db.facts(query=client_input.queries)
-    print facts
     for f in unique_factvalues(facts):
-        print f
+        print("%s" % f)
 
 def fact_values(db, raw_client_input=None):
     """
@@ -230,7 +224,7 @@ def fact_names(db):
 
     fact_list = db.fact_names()
     for fact_name in fact_list:
-        print fact_name
+        print("%s" % fact_name)
 
 def fact_query(db, raw_client_input=None):
     """
