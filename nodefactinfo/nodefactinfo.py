@@ -8,21 +8,23 @@ import traceback
 
 import pypuppetdb
 
+
 from api.query import nodes_query, fact_query
 
-PUPPETDB_HOST=os.getenv('PUPPETMASTER', 'localhost')
-PUPPETDB_PORT=os.getenv('PUPPETDBPORT', 8080)
+PUPPETDB_HOST = os.getenv('PUPPETMASTER', 'localhost')
+PUPPETDB_PORT = os.getenv('PUPPETDBPORT', 8080)
 
 
 def argparser():
     parser = argparse.ArgumentParser(description='Query puppetdb from the cli')
-    parser.add_argument('section', choices=['nodes', 'facts',],
-                   help='Choose item that your interested in')
+    parser.add_argument('section', choices=['nodes', 'facts', ],
+                        help='Choose item that your interested in')
     parser.add_argument('query', nargs='*',
                         help='query that will be used to filter the response')
 
     args = parser.parse_args()
     return args
+
 
 def make_it_so():
     args = argparser()
@@ -34,8 +36,8 @@ def make_it_so():
     if args.section == 'facts':
         fact_query(db, args.query)
 
-def main():
 
+def main():
     try:
         make_it_so()
         sys.exit(0)

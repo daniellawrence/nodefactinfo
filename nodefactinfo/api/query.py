@@ -7,8 +7,8 @@ import re
 import sys
 from collections import namedtuple
 
-PUPPETDB_HOST='localhost'
-PUPPETDB_PORT=49205
+PUPPETDB_HOST = 'localhost'
+PUPPETDB_PORT = 49205
 
 OPERATORS = [
     '=',
@@ -18,7 +18,9 @@ OPERATORS = [
 ]
 
 #
-RE_OPERATOR=r'(?P<fact>.+)(\s+|)(?P<operator>[%s])(\s+|)(?P<value>.*)' % "".join(OPERATORS)
+RE_OPERATOR = r'(?P<fact>.+)(\s+|)(?P<operator>[%s])(\s+|)(?P<value>.*)' \
+              % "".join(OPERATORS)
+
 
 def unique_factvalues(raw_facts):
     """
@@ -29,6 +31,7 @@ def unique_factvalues(raw_facts):
         factvalues.add(fact.value)
     return factvalues
 
+
 def facts2dict(raw_facts):
     """
     Covert the facts generator from pypuppet into a simple dict().
@@ -38,12 +41,12 @@ def facts2dict(raw_facts):
     for fact in raw_facts:
         facts[fact.name] = fact.value
     return facts
-    
+
 
 def has_operator(query):
     """
     Check if the passed in query contains an OPERATOR
-    
+
     This is used to work out if the raw input from the client is asking nfi to
     query puppetdb or customize how the results are passed back.
 
@@ -53,13 +56,14 @@ def has_operator(query):
             return True
     return False
 
+
 def simple2AST(queries):
     """
     Convert a very simple query into AST format for puppetdb
-    
+
     This allows the client to pass in a very simple and have it converted into
     the AST format for puppetdb.
-    
+
     for example.
 
     >>> simple2AST("hostname=bob")
@@ -110,7 +114,7 @@ def simple2AST(queries):
 def display_query_spliter(all_queries):
     """
     Reads over all the queries splitting them into display or AST
-    
+
     """
     queries = []
     display = []
@@ -135,6 +139,7 @@ def display_query_spliter(all_queries):
 
     return Response(display, queries)
 
+
 def _nodes_query(raw_client_input=None):
     query = None
     display = None
@@ -145,7 +150,6 @@ def _nodes_query(raw_client_input=None):
     if 'AND' in client_input.queries:
         client_input.queries.remove('AND')
         query = '["and", %s ]' % ", ".join(client_input.queries)
-
 
     # If we get an 'OR', then everything is an OR
     elif 'OR' in client_input.queries:
@@ -182,10 +186,10 @@ def _nodes_query(raw_client_input=None):
     formatted_clientinput = results(query, display, displayformat)
     return formatted_clientinput
 
-def nodes_query(db, raw_client_input=None):
-    """ 
-    Allow for simple queries to return a list of node and facts.
 
+def nodes_query(db, raw_client_input=None):
+    """
+    Allow for simple queries to return a list of node and facts.
     """
 
     # Process the raw input
@@ -207,18 +211,23 @@ def nodes_query(db, raw_client_input=None):
             continue
         print("%s" % node)
 
+
 def _fact_query(db, raw_client_input=None):
     client_input = display_query_spliter(raw_client_input)
     facts = db.facts(query=client_input.queries)
     for f in unique_factvalues(facts):
         print("%s" % f)
 
+
 def fact_values(db, raw_client_input=None):
     """
     Providing a fact with an operator, gather all the matching values.
 
-    This is mostly for autocomplete, however might be able to do some reports with it.
+    This is mostly for autocomplete,
+    however might be able to do some reports with it.
     """
+    raise NotImplemented("")
+
 
 def fact_names(db):
 
@@ -226,17 +235,14 @@ def fact_names(db):
     for fact_name in fact_list:
         print("%s" % fact_name)
 
+
 def fact_query(db, raw_client_input=None):
     """
     Allow for simple query of facts.
 
     """
-    
+
     if raw_client_input:
         return nodes_query(db, raw_client_input)
     else:
         return fact_names(db)
-    
-    
-
-
