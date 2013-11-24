@@ -77,7 +77,7 @@ def simple2AST(queries):
     """
 
     # split up strings into a list of queries
-    if not isinstance(queries, str) and not isinstance(queries, unicode):
+    if not isinstance(queries, str):
         raise Exception("simple2AST only converts a single query")
 
     # Make sure the query is a query

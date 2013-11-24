@@ -42,23 +42,23 @@ def main():
         make_it_so()
         sys.exit(0)
     except requests.exceptions.ConnectionError as error:
-        print "Connection Error"
-        print "-----------------"
-        print error
+        print("Connection Error")
+        print("-----------------")
+        print("%s" % error)
         traceback.print_exc(file=sys.stdout)
-        print "You can give environment varibles to change puppetdb's"
-        print "export PUPPETMASTER=localhost"
-        print "export PUPPETDBPORT=8080"
+        print("You can give environment varibles to change puppetdb's")
+        print("export PUPPETMASTER=localhost")
+        print("export PUPPETDBPORT=8080")
         sys.exit(1)
     except Exception as error:
-        print "Unknown Exception"
-        print "-----------------"
-        print error
+        print("Unknown Exception")
+        print("-----------------")
+        print("%s" % error)
         traceback.print_exc(file=sys.stdout)
         sys.exit(2)
 
-    print "Unknown PATH"
-    print "-----------------"
+    print("Unknown PATH")
+    print("-----------------")
     sys.exit(3)
 
 
