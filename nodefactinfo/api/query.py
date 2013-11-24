@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pypuppetdb
-import argparse
-import logging
 import re
-import sys
 from collections import namedtuple
 
 PUPPETDB_HOST='localhost'
@@ -112,7 +108,7 @@ def display_query_spliter(all_queries):
     Response = namedtuple('SplitInput', 'displable queries')
 
     # split up strings into a list of queries
-    if isinstance(all_queries, str) or isinstance(all_queries, unicode):
+    if isinstance(all_queries, str):
         all_queries = all_queries.split()
 
     if all_queries:
